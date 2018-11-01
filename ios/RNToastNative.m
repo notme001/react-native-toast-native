@@ -12,7 +12,9 @@ NSInteger const RNToastNativeGravityBottom = 1;
 NSInteger const RNToastNativeGravityCenter = 2;
 NSInteger const RNToastNativeGravityTop = 3;
 
+
 @interface RNToastNative : NSObject <RCTBridgeModule>
+@property(nonatomic,weak)UIWindow * window;
 @end
 
 @implementation RNToastNative {
@@ -99,6 +101,8 @@ RCT_EXPORT_METHOD(showWithGravity:(NSString *)msg duration:(double)duration grav
     dispatch_async(dispatch_get_main_queue(), ^{
         //UIView *root = [[[[[UIApplication sharedApplication] delegate] window] rootViewController] view];
         UIViewController *ctrl = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
+        self.window = [UIApplication sharedApplication].keyWindow;
+        
         UIView *root = [ctrl view];
         CGRect bound = root.bounds;
         bound.size.height -= _keyOffset;
@@ -108,8 +112,9 @@ RCT_EXPORT_METHOD(showWithGravity:(NSString *)msg duration:(double)duration grav
         }
         UIView *view = [[UIView alloc] initWithFrame:bound];
         view.userInteractionEnabled = NO;
-        [root addSubview:view];
+        [self.window addSubview:view];
         UIView __weak *blockView = view;
+        [self.window bringSubviewToFront:blockView];
         id position;
         if (gravity == RNToastNativeGravityTop) {
             position = CSToastPositionTop;
